@@ -1,5 +1,5 @@
 import {interval, fromEvent} from "rxjs";
-import {map, reduce, take} from "rxjs/operators";
+import { debounceTime, map, buffer, filter} from "rxjs/operators";
 
 const btnStart = document.getElementById('start')
 const btnReset = document.getElementById('reset')
@@ -25,8 +25,16 @@ start$.subscribe(data => {
     isWait = false
 })
 
-wait$.subscribe(data => {
-    wait()
+wait$.pipe(
+    buffer(
+        wait$.pipe(debounceTime(300))
+    ),
+    map(list => {
+        return list.length;
+    }),
+    filter(x => x === 2),
+).subscribe(()=>{
+  wait()
 })
 
 reset$.subscribe(data => {
